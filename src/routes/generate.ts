@@ -2,7 +2,45 @@ import { Router, Request, Response } from 'express';
 
 const router = Router();
 
-// POST /api/generate/pdf - Generate PDF resume
+/**
+ * POST /api/generate
+ * Generate a resume bullet point from section, role, and details
+ */
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const { section, role, details } = req.body;
+
+    if (!section || !role || !details) {
+      return res.status(400).json({
+        error: {
+          code: 'INVALID_REQUEST',
+          message: 'Section, role, and details are required',
+        },
+      });
+    }
+
+    // Placeholder logic — replace with AI or template generation later
+    const bullet = `• ${role} — ${details}`;
+
+    return res.json({
+      section,
+      role,
+      bullet,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      error: {
+        code: 'GENERATE_ERROR',
+        message: error.message,
+      },
+    });
+  }
+});
+
+/**
+ * POST /api/generate/pdf
+ * Generate PDF resume (placeholder)
+ */
 router.post('/pdf', async (req: Request, res: Response) => {
   try {
     const { resumeData } = req.body;
@@ -13,7 +51,7 @@ router.post('/pdf', async (req: Request, res: Response) => {
       });
     }
 
-    // Placeholder - will implement with Puppeteer
+    // Placeholder — implement with Puppeteer or pdf-lib later
     return res.json({
       message: 'PDF generation coming soon',
       filename: 'resume.pdf',
@@ -29,7 +67,10 @@ router.post('/pdf', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/generate/docx - Generate DOCX resume
+/**
+ * POST /api/generate/docx
+ * Generate DOCX resume (placeholder)
+ */
 router.post('/docx', async (req: Request, res: Response) => {
   try {
     const { resumeData } = req.body;
@@ -40,7 +81,7 @@ router.post('/docx', async (req: Request, res: Response) => {
       });
     }
 
-    // Placeholder - will implement with python-docx
+    // Placeholder — implement with docx or python-docx later
     return res.json({
       message: 'DOCX generation coming soon',
       filename: 'resume.docx',
