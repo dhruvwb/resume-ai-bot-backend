@@ -1,4 +1,6 @@
 import { Router, Request, Response } from 'express';
+import { PDFGenerator } from '../services/pdfGenerator';
+import { ResumeBuilder } from '../services/resumeBuilder';
 
 const router = Router();
 
@@ -39,7 +41,7 @@ router.post('/', async (req: Request, res: Response) => {
 
 /**
  * POST /api/generate/pdf
- * Generate PDF resume (placeholder)
+ * Generate PDF resume
  */
 router.post('/pdf', async (req: Request, res: Response) => {
   try {
@@ -51,17 +53,32 @@ router.post('/pdf', async (req: Request, res: Response) => {
       });
     }
 
-    // Placeholder — implement with Puppeteer or pdf-lib later
-    return res.json({
-      message: 'PDF generation coming soon',
-      filename: 'resume.pdf',
-      url: '/downloads/resume.pdf',
-    });
+    console.log('[PDF] Building resume text...');
+    // Build resume text from data
+    const resumeText = ResumeBuilder.buildRawResume(resumeData);
+    console.log('[PDF] Resume text length:', resumeText.length);
+    
+    console.log('[PDF] Generating PDF buffer...');
+    // Generate PDF buffer
+    const pdfBuffer = await PDFGenerator.generatePDFFromHTML(resumeText);
+    console.log('[PDF] PDF buffer size:', pdfBuffer.length, 'bytes');
+
+    if (!pdfBuffer || pdfBuffer.length === 0) {
+      throw new Error('PDF buffer is empty');
+    }
+
+    // Send PDF as response
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="resume.pdf"');
+    res.setHeader('Content-Length', pdfBuffer.length);
+    console.log('[PDF] Sending PDF response...');
+    return res.send(pdfBuffer);
   } catch (error: any) {
+    console.error('[PDF] Error:', error);
     return res.status(500).json({
       error: {
         code: 'GENERATE_PDF_ERROR',
-        message: error.message,
+        message: error.message || 'Failed to generate PDF',
       },
     });
   }
