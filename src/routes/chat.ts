@@ -56,7 +56,7 @@ async function optimizeField(fieldName: string, value: string): Promise<string> 
 
 // GET: Get initial question for a session
 router.get('/start/:sessionId', (req: Request, res: Response) => {
-  const { sessionId } = req.params;
+  const sessionId = String(req.params.sessionId);
 
   // Initialize questionnaire for this session if needed
   if (!questionnaireSessions.has(sessionId)) {
